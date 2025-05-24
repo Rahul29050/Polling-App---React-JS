@@ -1,0 +1,310 @@
+@import url("https://fonts.googleapis.com/css2?family=Onest:wght@800;900&display=swap");
+
+body {
+  font-family: 'Onest', sans-serif;
+  background: linear-gradient(to right, #e0eafc, #cfdef3);
+  margin: 0;
+  padding: 0;
+}
+
+.poll-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.poll-card {
+  position: relative;
+  width: 70%;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.poll-card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.poll-card h2 {
+  font-weight: 900;
+  font-size: 30px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.poll-card ul {
+  padding: 0;
+  margin-top: 10px;
+  text-align: left;
+}
+
+.poll-card li {
+  margin: 8px 0;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #444;
+}
+
+.bullet-list li::before {
+  content: "✔";
+  margin-right: 10px;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.time-left {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: #43c522;
+  color: #fff;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(67, 197, 34, 0.4);
+}
+
+.red-background {
+  background-color: #f44336 !important; /* Red background for < 5 min */
+  animation: pulse 1s infinite;
+}
+
+.expired-background {
+  background-color: #9e9e9e !important; /* Grey background for expired polls */
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.poll-voted-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4caf50;  
+  padding: 10px 15px;  
+  font-size: 16px;  
+  font-weight: 500;  
+  margin-top: 10px;  
+  text-align: center;  
+  min-height: 40px;  
+}
+
+.poll-voted-message i {
+  margin-right: 8px;  /* Space between the icon and the text */
+  color: #4caf50;  /* Green color for the icon */
+  font-size: 18px;  /* Icon size */
+}
+
+
+.poll-ended-message {
+  color: #fe0000;
+  font-weight: bold;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.created-by-bottom-right {
+  position: absolute;
+  bottom: -15px;
+  right: 10px;
+  font-size: 15px;
+  color: #777;
+}
+
+.filter-button-group {
+  display: flex;
+  margin-top: 20px;
+  margin-right: 20px;
+  justify-content: right;
+  gap: 16px;
+}
+
+.filter-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.filter-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.live-filter {
+  background-color: #4caf50;
+  color: white;
+}
+
+.expired-filter {
+  background-color: #f44336;
+  color: white;
+}
+
+
+.show-all-filter {
+  background-color: #008cba;
+  color: white;
+}
+
+.router-link-exact-active {
+  color: #007bff;
+  font-weight: bold;
+}
+
+.poll-tab-buttons {
+  display: flex;
+  justify-content: Left;
+  margin-top: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  /* margin: 0 10px; */
+  border: none;
+  background-color: #ccc;
+  cursor: pointer;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.tab-button.active {
+    background-image: linear-gradient(
+    225deg,
+    #8e466cb4 0%,
+    #755194b5 50%,
+    #2186d3 100%
+  );
+  color: white;
+}
+
+.poll-tab-buttons {
+  display: flex;
+  justify-content: left;
+  margin-top: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  /* margin: 0 10px; */
+  border: none;
+  background-color: #ccc;
+  cursor: pointer;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.tab-button.active {
+    background-image: linear-gradient(
+    225deg,
+    #7e385ed5 0%,
+    #6e5387c4 50%,
+    #1d77bc 100%
+  );;
+  color: white;
+}
+
+
+/* Add these styles to your existing Dashboard.css */
+
+/* Highlight the user's selected option */
+.selected-option-dashboard {
+  background-color: #e8f5e8 !important;
+  border-left: 4px solid #28a745 !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
+  margin: 4px 0 !important;
+  border-radius: 4px !important;
+  position: relative;
+}
+
+/* Dark mode support for selected option */
+@media (prefers-color-scheme: dark) {
+  .selected-option-dashboard {
+    background-color: #189218ad !important;
+    border-left-color: #528e52ad !important;
+    color: #e8f5e8 !important;
+  }
+}
+
+/* Indicator text styling */
+.your-choice-indicator {
+  color: #28a745;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+/* Dark mode support for indicator */
+@media (prefers-color-scheme: dark) {
+  .your-choice-indicator {
+    color: #3c6f4f;
+  }
+}
+
+/* Optional: Add a subtle animation when the option is highlighted */
+.selected-option-dashboard {
+  transition: all 0.3s ease;
+}
+
+/* Ensure the bullet list items have proper styling */
+.bullet-list li {
+  padding: 6px 8px;
+  margin: 2px 0;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+/* Optional: Hover effect for non-selected options when user has voted */
+.bullet-list li:not(.selected-option-dashboard):hover {
+  background-color: #f8f9fa;
+}
+
+
+
+@media (max-width: 900px) {
+  .poll-cards-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .poll-card {
+    width: 90%;
+  }
+}
+
+@media (max-width: 450px) {
+  .poll-card {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .time-left {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
+
+

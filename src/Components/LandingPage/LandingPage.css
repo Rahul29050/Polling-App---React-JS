@@ -1,0 +1,185 @@
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.heading {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.custom-heading {
+  font-size: 2.5rem;
+  color: #2e4057;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2rem;
+  flex: 1;
+}
+
+.left-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 800px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.image-container {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  margin-bottom: 2rem;
+  margin-left: 500px;
+  margin-top: 55px;
+
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.image-container.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.landing-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  
+}
+
+.tagline {
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #425a70;
+  margin: 0 0 2rem;
+  margin-left: 500px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out 0.2s, transform 0.8s ease-out 0.2s;
+}
+
+.tagline.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.button-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 50px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out 0.4s, transform 0.8s ease-out 0.4s;
+}
+
+.button-container.animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.landing-login-button,
+.landing-signup-button {
+  padding: 0.8rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 30px;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-right: 80px;
+}
+
+.landing-login-button {
+  background-color: #3498db;
+  color: white;
+  border: 2px solid #3498db;
+}
+
+.landing-signup-button {
+  background-color: white;
+  color: #3498db;
+  border: 2px solid #3498db;
+}
+
+.landing-login-button:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.landing-signup-button:hover {
+  background-color: #f8f8f8;
+  color: #2980b9;
+  border-color: #2980b9;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Media queries for responsive design */
+@media (min-width: 768px) {
+  .content {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .left-content {
+    margin-bottom: 0;
+    margin-right: 2rem;
+  }
+
+  .button-container {
+    flex-direction: column;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .custom-heading {
+    font-size: 2rem;
+  }
+  
+  .landing-login-button,
+  .landing-signup-button {
+    padding: 0.7rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Optional: Add pulsing animation to the login button for extra attention */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+  }
+}
+
+.landing-login-button {
+  animation: pulse 2s infinite;
+}
