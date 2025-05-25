@@ -18,7 +18,15 @@ const Navbar = () => {
   const [showRightSidebar, setShowRightSidebar] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  
+  // New states for user selection
+  const [users, setUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  
   const profileRef = useRef(null);
+  const userDropdownRef = useRef(null);
 
   const navigate = useNavigate();
   const [user, setUser] = useState(
@@ -32,18 +40,15 @@ const Navbar = () => {
 
     fetchNotifications();
     fetchUnreadCount();
+    fetchUsers(); // Fetch all users for selection
 
-    // Listen for new poll notifications
     socketRef.current.on("pollCreated", (newPoll) => {
       const currentUser = JSON.parse(localStorage.getItem("user"));
 
-      // Only show notification if it's not the current user who created the poll
       if (newPoll.createdBy.userId !== currentUser._id) {
-        // Refresh notifications to get the new ones
         fetchNotifications();
         fetchUnreadCount();
         
-        // Show toast notification
         toast.info(`${newPoll.createdBy.username} created a new poll: ${newPoll.question}`);
       }
     });
@@ -55,6 +60,13 @@ const Navbar = () => {
       ) {
         setShowNotifications(false);
       }
+      
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target)
+      ) {
+        setShowUserDropdown(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -64,6 +76,21 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Fetch all users for selection
+  const fetchUsers = () => {
+    axiosInstance
+      .get("/api/users") // Adjust endpoint as needed
+      .then((response) => {
+        const currentUser = JSON.parse(localStorage.getItem("user"));
+        // Filter out current user from the list
+        const filteredUsers = response.data.filter(u => u._id !== currentUser._id);
+        setUsers(filteredUsers);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
+  };
 
   const fetchNotifications = () => {
     const currentUser = JSON.parse(localStorage.getItem("user"));
@@ -103,14 +130,12 @@ const Navbar = () => {
         userId: currentUser._id
       })
       .then((response) => {
-        // Update local state
         setNotifications((prev) =>
           prev.map((n) =>
             n._id === notification._id ? { ...n, isRead: true } : n
           )
         );
         
-        // Update unread count
         fetchUnreadCount();
         
         toast.success(response.data.message);
@@ -129,12 +154,10 @@ const Navbar = () => {
         userId: currentUser._id
       })
       .then((response) => {
-        // Update local state
         setNotifications((prev) =>
           prev.map((n) => ({ ...n, isRead: true }))
         );
         
-        // Update unread count
         setUnreadCount(0);
         
         toast.success(response.data.message);
@@ -172,6 +195,24 @@ const Navbar = () => {
     setPollOptions(newOptions);
   };
 
+  // Handle user selection for private polls
+  const handleUserSelect = (selectedUser) => {
+    if (!selectedUsers.find(user => user._id === selectedUser._id)) {
+      setSelectedUsers([...selectedUsers, selectedUser]);
+    }
+    setUserSearchTerm("");
+    setShowUserDropdown(false);
+  };
+
+  const removeSelectedUser = (userId) => {
+    setSelectedUsers(selectedUsers.filter(user => user._id !== userId));
+  };
+
+  const filteredUsers = users.filter(user =>
+    user.fullname.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(userSearchTerm.toLowerCase())
+  );
+
   const openCreatePollDialog = () => {
     setShowCreatePollDialog(true);
   };
@@ -182,53 +223,77 @@ const Navbar = () => {
     setVisibility("public");
     setDuration("");
     setDurationUnit("minutes");
+    setSelectedUsers([]);
+    setUserSearchTerm("");
     setShowCreatePollDialog(false);
   };
 
-const createPoll = () => {
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const createPoll = () => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
 
-  const postData = {
-    question: pollQuestion,
-    options: pollOptions,
-    visibility: visibility,
-    duration: parseInt(duration),
-    durationUnit: durationUnit,
-    isActive: true,
-    createdBy: {
-      userId: currentUser._id,
-      username: currentUser.fullname,
-    },
+    // Validation
+    if (!pollQuestion.trim()) {
+      toast.error("Please enter a poll question");
+      return;
+    }
+
+    if (pollOptions.some(option => !option.trim())) {
+      toast.error("Please fill in all poll options");
+      return;
+    }
+
+    if (!duration || duration <= 0) {
+      toast.error("Please enter a valid duration");
+      return;
+    }
+
+    if (visibility === "private" && selectedUsers.length === 0) {
+      toast.error("Please select at least one user for private poll");
+      return;
+    }
+
+    const postData = {
+      question: pollQuestion,
+      options: pollOptions,
+      visibility: visibility,
+      duration: parseInt(duration),
+      durationUnit: durationUnit,
+      isActive: true,
+      createdBy: {
+        userId: currentUser._id,
+        username: currentUser.fullname,
+      },
+      allowedUsers: visibility === "private" ? selectedUsers.map(user => user._id) : [],
+    };
+
+    axiosInstance
+      .post("/api/polls", postData)
+      .then((response) => {
+        if (response.status === 201) {
+          closeCreatePollDialog();
+          toast.success("Poll created Successfully");
+          
+          axiosInstance
+            .post("/notifications", {
+              content: `${currentUser.fullname} created a new poll: ${pollQuestion}`,
+              pollId: response.data._id,
+              creatorId: currentUser._id 
+            })
+            .then(() => {
+              console.log("Notifications created successfully");
+            })
+            .catch((error) => {
+              console.error("Error creating notifications:", error);
+            });
+          
+          socketRef.current.emit("newPollCreated", postData);
+        }
+      })
+      .catch((error) => {
+        console.error("Error creating poll:", error);
+        toast.error("Failed to create poll");
+      });
   };
-
-  axiosInstance
-    .post("/api/polls", postData)
-    .then((response) => {
-      if (response.status === 201) {
-        closeCreatePollDialog();
-        toast.success("Poll created Successfully");
-        
-        // Create notifications for all users EXCEPT the current user
-        axiosInstance
-          .post("/notifications", {
-            content: `${currentUser.fullname} created a new poll: ${pollQuestion}`,
-            pollId: response.data._id,
-            creatorId: currentUser._id // Pass creator ID to exclude them
-          })
-          .then(() => {
-            console.log("Notifications created successfully");
-          })
-          .catch((error) => {
-            console.error("Error creating notifications:", error);
-          });
-        
-        socketRef.current.emit("newPollCreated", postData);
-      }
-    })
-    .catch((error) => {
-      console.error("Error creating poll:", error);
-    });
-};
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -245,7 +310,6 @@ const createPoll = () => {
     navigate("/mypolls");
   };
 
-  // Sort notifications: unread first, then by creation date
   const sortedNotifications = [...notifications].sort((a, b) => {
     if (a.isRead !== b.isRead) {
       return a.isRead ? 1 : -1;
@@ -253,99 +317,97 @@ const createPoll = () => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
 
-
   return (
-    <div className="navbar">
-      <div className="navbar-left">
-        <h3>Polling Application</h3>
-      </div>
-
-      <div className="navbar-right">
-        <button className="dashboard-button" onClick={dashboard}>
-          Dashboard
-        </button>
-        <button className="my-polls-button" onClick={myPolls}>
-          My Polls
-        </button>
-        <button className="create-poll-button" onClick={openCreatePollDialog}>
-          Create Poll
-        </button>
-        <div className="notification-wrapper" ref={notificationRef}>
-          <button className="notification-button" onClick={toggleNotifications}>
-            <i className="fas fa-bell fa-shake"></i>
-            {unreadCount > 0 && (
-              <span className="notification-badge">{unreadCount}</span>
-            )}
-          </button>
-          {showNotifications && (
-            <div className="notification-dropdown">
-              <div className="notification-header">
-                <h4>Notifications</h4>
-                {unreadCount > 0 && (
-                  <button 
-                    className="mark-all-read-btn"
-                    onClick={markAllAsRead}
-                  >
-                    Mark all as read
-                  </button>
-                )}
-              </div>
-              
-              {sortedNotifications.length === 0 ? (
-                <div className="no-notifications">
-                  No notifications yet
-                </div>
-              ) : (
-                sortedNotifications.map((notification, index) => (
-                  <div 
-                    key={notification._id} 
-                    className={`notification ${notification.isRead ? 'read' : 'unread'}`}
-                  >
-                    <div className="notification-content">
-                      {notification.content}
-                    </div>
-                    {!notification.isRead && (
-                      <span
-                        className="mark-as-read"
-                        onClick={() => markAsRead(notification)}
-                      >
-                        <i className="fa-solid fa-check-double"></i>
-                        <span className="mark-as-read-tooltip">Mark as Read</span>
-                      </span>
-                    )}
-                    {index < sortedNotifications.length - 1 && <hr />}
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-        </div>
-        <div className="profile-wrapper" ref={profileRef}>
-          <button
-            className="profile-button"
-            onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-          >
-            {user?.fullname?.charAt(0).toUpperCase() || "U"}
-          </button>
-          {showProfileDropdown && (
-            <div className="profile-dropdown">
-              <p>
-                <strong>{user.fullname}</strong>
-              </p>
-              <p>{user.email}</p>
-              <hr />
-              <button className="logout-button" onClick={logout}>
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+  <div className="navbar">
+    <div className="navbar-left">
+      <h3>Polling Application</h3>
       <button className="toggle-sidebar-button" onClick={toggleSidebar}>
         <i className="fas fa-bars"></i>
       </button>
+    </div>
 
-      {/* Container for right-side buttons in dropdown/sidebar */}
+    <div className="navbar-right">
+      <button className="dashboard-button" onClick={dashboard}>
+        Dashboard
+      </button>
+      <button className="my-polls-button" onClick={myPolls}>
+        My Polls
+      </button>
+      <button className="create-poll-button" onClick={openCreatePollDialog}>
+        Create Poll
+      </button>
+      <div className="notification-wrapper" ref={notificationRef}>
+        <button className="notification-button" onClick={toggleNotifications}>
+          <i className="fas fa-bell fa-shake"></i>
+          {unreadCount > 0 && (
+            <span className="notification-badge">{unreadCount}</span>
+          )}
+        </button>
+        {showNotifications && (
+          <div className="notification-dropdown">
+            <div className="notification-header">
+              <h4>Notifications</h4>
+              {unreadCount > 0 && (
+                <button 
+                  className="mark-all-read-btn"
+                  onClick={markAllAsRead}
+                >
+                  Mark all as read
+                </button>
+              )}
+            </div>
+            
+            {sortedNotifications.length === 0 ? (
+              <div className="no-notifications">
+                No notifications yet
+              </div>
+            ) : (
+              sortedNotifications.map((notification, index) => (
+                <div 
+                  key={notification._id} 
+                  className={`notification ${notification.isRead ? 'read' : 'unread'}`}
+                >
+                  <div className="notification-content">
+                    {notification.content}
+                  </div>
+                  {!notification.isRead && (
+                    <span
+                      className="mark-as-read"
+                      onClick={() => markAsRead(notification)}
+                    >
+                      <i className="fa-solid fa-check-double"></i>
+                      <span className="mark-as-read-tooltip">Mark as Read</span>
+                    </span>
+                  )}
+                  {index < sortedNotifications.length - 1 && <hr />}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+      <div className="profile-wrapper" ref={profileRef}>
+        <button
+          className="profile-button"
+          onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+        >
+          {user?.fullname?.charAt(0).toUpperCase() || "U"}
+        </button>
+        {showProfileDropdown && (
+          <div className="profile-dropdown">
+            <p>
+              <strong>{user.fullname}</strong>
+            </p>
+            <p>{user.email}</p>
+            <hr />
+            <button className="logout-button" onClick={logout}>
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+
       {showRightSidebar && (
         <div className="right-sidebar-container">
           <button className="dashboard-button" onClick={dashboard}>
@@ -357,9 +419,6 @@ const createPoll = () => {
           <button className="create-poll-button" onClick={openCreatePollDialog}>
             Create Poll
           </button>
-          <button className="logout-button" onClick={logout}>
-            Logout
-          </button>
         </div>
       )}
 
@@ -368,7 +427,7 @@ const createPoll = () => {
         open={showCreatePollDialog}
         onOk={createPoll}
         onCancel={closeCreatePollDialog}
-        width={1000}
+        width={1200}
       >
         <div className="create-poll-dialog-content">
           <div className="input-group">
@@ -454,25 +513,15 @@ const createPoll = () => {
                   <option value="days">Days</option>
                 </select>
               </div>
+              
               <label htmlFor="visibility">Visibility:</label>
-              <div className="visibility-options">
-                <input
-                  checked={visibility === "private"}
-                  onChange={() => setVisibility("private")}
-                  id="private"
-                  name="visibility"
-                  type="radio"
-                  value="private"
-                  required
-                  disabled
-                  className="radio-center"
-                />
-                <label htmlFor="private">Private</label>
-              </div>
-              <div className="visibility-options">
+                            <div className="visibility-options">
                 <input
                   checked={visibility === "public"}
-                  onChange={() => setVisibility("public")}
+                  onChange={() => {
+                    setVisibility("public");
+                    setSelectedUsers([]);
+                  }}
                   id="public"
                   name="visibility"
                   type="radio"
@@ -482,6 +531,85 @@ const createPoll = () => {
                 />
                 <label htmlFor="public">Public</label>
               </div>
+              <div className="visibility-options">
+                <input
+                  checked={visibility === "private"}
+                  onChange={() => {
+                    setVisibility("private");
+                    setSelectedUsers([]);
+                  }}
+                  id="private"
+                  name="visibility"
+                  type="radio"
+                  value="private"
+                  required
+                  className="radio-center"
+                />
+                <label htmlFor="private">Private</label>
+              </div>
+
+
+              {/* User selection for private polls */}
+              {visibility === "private" && (
+                <div className="user-selection-container">
+                  <label htmlFor="allowedUsers">Select Users:</label>
+                  <div className="user-search-container" ref={userDropdownRef}>
+                    <input
+                      type="text"
+                      placeholder="Search users by name or email..."
+                      value={userSearchTerm}
+                      onChange={(e) => {
+                        setUserSearchTerm(e.target.value);
+                        setShowUserDropdown(true);
+                      }}
+                      onFocus={() => setShowUserDropdown(true)}
+                      className="user-search-input"
+                    />
+                    
+                    {showUserDropdown && userSearchTerm && (
+                      <div className="user-dropdown">
+                        {filteredUsers.length > 0 ? (
+                          filteredUsers.slice(0, 10).map((user) => (
+                            <div
+                              key={user._id}
+                              className="user-option"
+                              onClick={() => handleUserSelect(user)}
+                            >
+                              <div className="user-info">
+                                <span className="user-name">{user.fullname}</span>
+                                <span className="user-email">{user.email}</span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="no-users-found">No users found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Display selected users */}
+                  {selectedUsers.length > 0 && (
+                    <div className="selected-users-container">
+                      <label>Selected Users:</label>
+                      <div className="selected-users-list">
+                        {selectedUsers.map((user) => (
+                          <div key={user._id} className="selected-user-tag">
+                            <span className="selected-user-name">{user.fullname}</span>
+                            <button
+                              type="button"
+                              className="remove-user-btn"
+                              onClick={() => removeSelectedUser(user._id)}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

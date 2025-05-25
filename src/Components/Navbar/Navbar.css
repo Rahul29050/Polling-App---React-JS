@@ -53,6 +53,7 @@
   background-color: #007bff;
   color: #fff;
 }
+
 .dashboard-button,
 .my-polls-button {
   background: transparent;
@@ -69,6 +70,7 @@
   background-color: #007bff;
   color: #fff;
 }
+
 .create-poll-dialog-content {
   display: flex;
   flex-direction: column;
@@ -107,7 +109,6 @@ label {
   flex-direction: column;
   gap: 10px;
   margin-left: 10px;
-
 }
 
 .option {
@@ -123,11 +124,9 @@ label {
 }
 
 .option-input {
-  /* flex: 1; */
   padding: 15px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  /* width: 350px; */
   font-size: 16px;
 }
 
@@ -201,14 +200,13 @@ label {
   font-size: 12px;
   white-space: nowrap;
   z-index: 1001;
-    top: 20px;
+  top: 20px;
   right: 0;
 }
 
 .notification .mark-as-read:hover .mark-as-read-tooltip {
   display: inline-block;
 }
-
 
 .notification-wrapper {
   position: relative;
@@ -223,9 +221,8 @@ label {
 
 .notification.read {
   background-color: #f0f0f0; 
-  font-weight:100;
+  font-weight: 100;
   opacity: 0.8;
-
 }
 
 .notification-dropdown {
@@ -363,14 +360,16 @@ input[type="radio"] {
     #397bae6d 100%
   );
   color: #fff;
+  display: flex;
   flex-direction: column;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 10px;
   position: absolute;
-  top: 50px;
-  margin-top: 6px;
-  right: 0px;
-  width: 40vw;
+  top: 60px;
+  left: 10px; /* Changed from left to right */
+  width: 200px;
+  min-width: 180px;
+  max-width: 250px;
   z-index: 1000;
   border-radius: 5px;
 }
@@ -378,6 +377,18 @@ input[type="radio"] {
 .right-sidebar-container button {
   width: 100%;
   margin: 5px 0;
+  padding: 10px;
+  background: transparent;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: left;
+}
+
+.right-sidebar-container button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .profile-wrapper {
@@ -488,24 +499,262 @@ input[type="radio"] {
   padding: 20px;
   text-align: center;
   color: #999;
-} 
+}
 
+/* User Selection Styles for Private Polls */
+.user-selection-container {
+  margin-top: 15px;
+  width: 100%;
+}
+
+.user-selection-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-search-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.user-search-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.user-search-input:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.user-option {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.user-option:hover {
+  background-color: #f5f5f5;
+}
+
+.user-option:last-child {
+  border-bottom: none;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.user-email {
+  font-size: 12px;
+  color: #666;
+}
+
+.no-users-found {
+  padding: 12px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}
+
+.selected-users-container {
+  margin-top: 10px;
+}
+
+.selected-users-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.selected-users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-user-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f8ff;
+  border: 1px solid #1890ff;
+  border-radius: 16px;
+  padding: 4px 8px 4px 12px;
+  font-size: 13px;
+  color: #1890ff;
+  gap: 6px;
+}
+
+.selected-user-name {
+  white-space: nowrap;
+}
+
+.remove-user-btn {
+  background: none;
+  border: none;
+  color: #1890ff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.remove-user-btn:hover {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .user-dropdown {
+    max-height: 150px;
+  }
+  
+  .selected-users-list {
+    gap: 6px;
+  }
+  
+  .selected-user-tag {
+    font-size: 12px;
+    padding: 3px 6px 3px 10px;
+  }
+}
 
 @media (max-width: 800px) {
+  .navbar {
+    position: relative;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
   .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+  
+  .navbar-right .dashboard-button,
+  .navbar-right .my-polls-button,
+  .navbar-right .create-poll-button {
     display: none;
   }
-
-  .notification-button {
+  
+  .notification-wrapper,
+  .profile-wrapper {
     display: inline-block;
   }
-
+  
   .toggle-sidebar-button {
     display: block;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1000;
+    padding: 8px;
+    margin: 0;
+    order: 2;
+  }
+  
+  .navbar-left h3 {
+    order: 1;
+    margin: 0;
+  }
+  
+  .notification-dropdown {
+    right: 0;
+    min-width: 280px;
+    width: 80vw;
+    max-width: 350px;
+  }
+  
+  .profile-dropdown {
+    right: 0;
+    width: 180px;
+  }
+  
+  .right-sidebar-container {
+    left: 0px;
+    width: 180px;
+    top: 63px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    padding: 8px 12px;
+  }
+  
+  .navbar-left h3 {
+    font-size: 1.2rem;
+  }
+  
+  .notification-button {
+    padding: 8px 12px;
+  }
+  
+  .notification-dropdown {
+    width: 90vw;
+    max-width: none;
+    right: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  /* Adjust profile button size */
+  .profile-button {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+  
+  .right-sidebar-container {
+    width: 80vw;
+    right: 5px;
+    top : 59px;
   }
 }
 
@@ -519,6 +768,7 @@ input[type="radio"] {
     margin-left: 0;
     font-size: 14px;
   }
+  
   .options-and-details {
     flex-direction: column;
   }
@@ -544,8 +794,6 @@ input[type="radio"] {
     margin-bottom: 20px;
     display: flex;
     align-items: center;
-    gap : 10px;
-}
-
-
+    gap: 10px;
+  }
 }
