@@ -106,6 +106,8 @@ label {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-left: 10px;
+
 }
 
 .option {
@@ -125,7 +127,7 @@ label {
   padding: 15px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 350px;
+  /* width: 350px; */
   font-size: 16px;
 }
 
@@ -463,12 +465,7 @@ input[type="radio"] {
   align-items: center;
   padding: 10px;
   border-bottom: 1px solid #eee;
-}
-
-.notification-header h4 {
-  margin: 0;
-  font-size: 16px;
-  color: #a02466b9;
+  color: #784ba0;
 }
 
 .mark-all-read-btn {
@@ -491,7 +488,7 @@ input[type="radio"] {
   padding: 20px;
   text-align: center;
   color: #999;
-}
+} 
 
 
 @media (max-width: 800px) {
@@ -530,9 +527,25 @@ input[type="radio"] {
     margin-bottom: 10px;
   }
 
+  #duration,
+  #duration-unit {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
   .duration-visibility-container {
     display: flex;
     flex-direction: column;
     margin-left: 0;
   }
+
+  .duration-visibility-container .input-group {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap : 10px;
+}
+
+
 }

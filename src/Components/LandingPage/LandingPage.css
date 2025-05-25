@@ -22,6 +22,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 0 2rem;
   flex: 1;
 }
@@ -33,6 +34,8 @@
   max-width: 800px;
   width: 100%;
   margin-bottom: 2rem;
+  margin: 0 auto 1rem; 
+  text-align: center;
 }
 
 .image-container {
@@ -40,16 +43,32 @@
   max-width: 600px;
   height: auto;
   margin-bottom: 2rem;
-  margin-left: 500px;
-  margin-top: 55px;
-
+  margin: 55px auto 2rem; 
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  margin-left: auto;
+  margin-right: auto;
 }
+
+.tagline {
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #425a70;
+  margin: 0 auto 2rem;
+  /* REMOVE margin-left: 500px; */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out 0.2s, transform 0.8s ease-out 0.2s;
+  padding: 0 1rem;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+}
+
 
 .image-container.animate {
   opacity: 1;
@@ -64,17 +83,7 @@
   
 }
 
-.tagline {
-  text-align: center;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: #425a70;
-  margin: 0 0 2rem;
-  margin-left: 500px;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease-out 0.2s, transform 0.8s ease-out 0.2s;
-}
+
 
 .tagline.animate {
   opacity: 1;
@@ -128,6 +137,16 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem;
+  flex: 1;
+  width: 100%;
+}
+
+
 .landing-signup-button:hover {
   background-color: #f8f8f8;
   color: #2980b9;
@@ -137,11 +156,12 @@
 }
 
 /* Media queries for responsive design */
-@media (min-width: 768px) {
+@media (min-width: 940px) {
   .content {
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    gap: 5rem;
   }
 
   .left-content {
@@ -151,6 +171,7 @@
 
   .button-container {
     flex-direction: column;
+    align-items: center;
     margin-top: 0;
   }
 }
@@ -164,6 +185,13 @@
   .landing-signup-button {
     padding: 0.7rem 2rem;
     font-size: 1rem;
+  }
+
+  .button-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
   }
 }
 

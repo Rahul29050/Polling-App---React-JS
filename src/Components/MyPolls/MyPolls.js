@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../Navbar/Navbar";
 import axiosInstance from "../../utils/axiosinstance";
@@ -9,6 +9,8 @@ import './MyPolls.css';
   const MyPolls = () => {
   const [polls, setPolls] = useState([]);
   const [selectedPoll, setSelectedPoll] = useState(null);
+  const [showQuestions, setShowQuestions] = useState(true);
+
 
   useEffect(() => {
     fetchUserPolls();
@@ -104,6 +106,7 @@ import './MyPolls.css';
       }))
     );
   };
+  const pollDetailsRef = useRef(null);
 
   const showPollDetails = (poll) => {
     const totalVotes = poll.options.reduce(
@@ -122,6 +125,11 @@ import './MyPolls.css';
       totalVotes,
       options: updatedOptions
     });
+    setTimeout(() => {
+    if (pollDetailsRef.current) {
+      pollDetailsRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, 100);
   };
 
   const getTimeLeftColor = () => {
@@ -134,23 +142,31 @@ import './MyPolls.css';
   return (
     <div className="my-polls">
       <Navbar />
+      <button
+  className="toggle-btn"
+  onClick={() => setShowQuestions((prev) => !prev)}
+>
+  {showQuestions ? 'Hide Poll Titles' : 'Show Poll Titles'}
+</button>
 
       <div className="my-polls-container">
-        <div className="question-list">
-          <h2 className="my-polls-title">Poll Title</h2>
-          <ul>
-            {polls.map((poll, index) => (
-              <li key={index} onClick={() => showPollDetails(poll)}>
-                {poll.question}
-                <span onClick={(e) => confirmDelete(poll._id, e)} className="delete-icon">
-                  <i className="fa-solid fa-trash" style={{ color: "#ff0000" }}></i>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+{showQuestions && (
+    <div className="question-list">
+      <h2 className="my-polls-title">Poll Title</h2>
+      <ul>
+        {polls.map((poll, index) => (
+          <li key={index} onClick={() => showPollDetails(poll)}>
+            {poll.question}
+            <span onClick={(e) => confirmDelete(poll._id, e)} className="delete-icon">
+              <i className="fa-solid fa-trash" style={{ color: "#ff0000" }}></i>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
 
-        <div className="poll-details">
+        <div className="poll-details" ref={pollDetailsRef}>
           <h2 className="my-polls-title">Poll Details</h2>
           
           {selectedPoll ? (

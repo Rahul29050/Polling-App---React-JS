@@ -464,6 +464,7 @@ const createPoll = () => {
                   type="radio"
                   value="private"
                   required
+                  disabled
                   className="radio-center"
                 />
                 <label htmlFor="private">Private</label>

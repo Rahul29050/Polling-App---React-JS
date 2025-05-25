@@ -96,11 +96,16 @@
   margin-top: 25px;
   font-size: 16px;
   color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  text-align: center;
 }
 
 .signup-button {
   margin-left: 15px;
-  color: #007BFF;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
@@ -109,6 +114,19 @@
 .signup-button:hover {
   color: #0056b3;
 }
+
+@media (max-width: 450px) {
+  .signup-link {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .signup-button {
+    margin-left: 0; /* Remove spacing on small screens */
+    margin-top: 5px; /* Add space between lines */
+  }
+}
+
 
 /* Animations */
 @keyframes fadeIn {
