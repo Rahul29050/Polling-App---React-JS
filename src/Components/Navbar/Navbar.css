@@ -441,6 +441,58 @@ input[type="radio"] {
   background-color: #ff7875;
 }
 
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.notification-header h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #a02466b9;
+}
+
+.mark-all-read-btn {
+  background: none;
+  border: none;
+  color: #1890ff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.notification.read {
+  opacity: 0.6;
+}
+
+.notification.unread {
+  background-color: #f0f8ff;
+}
+
+.no-notifications {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+}
+
 
 @media (max-width: 800px) {
   .navbar-right {

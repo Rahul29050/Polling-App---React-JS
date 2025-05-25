@@ -3,8 +3,8 @@ import { Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
-import axiosInstance from "../../utils/axiosinstance"; // Adjust the import path as necessary
-import "./Navbar.css"; // Make sure to create this CSS file
+import axiosInstance from "../../utils/axiosinstance";
+import "./Navbar.css";
 
 const Navbar = () => {
   const [showCreatePollDialog, setShowCreatePollDialog] = useState(false);
@@ -17,6 +17,7 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [showRightSidebar, setShowRightSidebar] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const profileRef = useRef(null);
 
   const navigate = useNavigate();
@@ -30,32 +31,20 @@ const Navbar = () => {
     socketRef.current = io("http://localhost:3000");
 
     fetchNotifications();
+    fetchUnreadCount();
 
+    // Listen for new poll notifications
     socketRef.current.on("pollCreated", (newPoll) => {
       const currentUser = JSON.parse(localStorage.getItem("user"));
 
+      // Only show notification if it's not the current user who created the poll
       if (newPoll.createdBy.userId !== currentUser._id) {
-        const notificationContent = `${newPoll.createdBy.username} created a new poll: ${newPoll.question}`;
-
-        axiosInstance
-          .post("/notifications", {
-            content: notificationContent,
-            userId: newPoll.createdBy.userId,
-          })
-          .then((response) => {
-            console.log(response.data);
-          })
-          .catch((error) => {
-            console.error("Error creating notification:", error);
-          });
-
-        setNotifications((prev) => [
-          ...prev,
-          {
-            content: notificationContent,
-            isRead: false,
-          },
-        ]);
+        // Refresh notifications to get the new ones
+        fetchNotifications();
+        fetchUnreadCount();
+        
+        // Show toast notification
+        toast.info(`${newPoll.createdBy.username} created a new poll: ${newPoll.question}`);
       }
     });
 
@@ -77,18 +66,28 @@ const Navbar = () => {
   }, []);
 
   const fetchNotifications = () => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    
     axiosInstance
-      .get("/notifications")
+      .get(`/notifications?userId=${currentUser._id}`)
       .then((response) => {
-        const currentUser = user._id;
-        setNotifications(
-          response.data.filter(
-            (notification) => notification.userId !== currentUser
-          )
-        );
+        setNotifications(response.data);
       })
       .catch((error) => {
         console.error("Error fetching notifications:", error);
+      });
+  };
+
+  const fetchUnreadCount = () => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    
+    axiosInstance
+      .get(`/notifications/unread-count?userId=${currentUser._id}`)
+      .then((response) => {
+        setUnreadCount(response.data.unreadCount);
+      })
+      .catch((error) => {
+        console.error("Error fetching unread count:", error);
       });
   };
 
@@ -97,21 +96,52 @@ const Navbar = () => {
   };
 
   const markAsRead = (notification) => {
-    const notificationId = notification._id;
-
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    
     axiosInstance
-      .put(`/notifications/${notificationId}/read`)
+      .patch(`/notifications/${notification._id}/read`, {
+        userId: currentUser._id
+      })
       .then((response) => {
+        // Update local state
         setNotifications((prev) =>
           prev.map((n) =>
-            n._id === notificationId ? { ...n, isRead: true } : n
+            n._id === notification._id ? { ...n, isRead: true } : n
           )
         );
+        
+        // Update unread count
+        fetchUnreadCount();
+        
         toast.success(response.data.message);
       })
       .catch((error) => {
         console.error("Error marking notification as read:", error);
         toast.error("Failed to mark notification as read");
+      });
+  };
+
+  const markAllAsRead = () => {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    
+    axiosInstance
+      .patch('/notifications/read-all', {
+        userId: currentUser._id
+      })
+      .then((response) => {
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((n) => ({ ...n, isRead: true }))
+        );
+        
+        // Update unread count
+        setUnreadCount(0);
+        
+        toast.success(response.data.message);
+      })
+      .catch((error) => {
+        console.error("Error marking all notifications as read:", error);
+        toast.error("Failed to mark all notifications as read");
       });
   };
 
@@ -155,41 +185,50 @@ const Navbar = () => {
     setShowCreatePollDialog(false);
   };
 
-  const createPoll = () => {
-    const currentUser = JSON.parse(localStorage.getItem("user"));
+const createPoll = () => {
+  const currentUser = JSON.parse(localStorage.getItem("user"));
 
-    const postData = {
-      question: pollQuestion,
-      options: pollOptions,
-      visibility: visibility,
-      duration: parseInt(duration),
-      durationUnit: durationUnit,
-      isActive: true,
-      createdBy: {
-        userId: currentUser._id,
-        username: currentUser.fullname,
-      },
-    };
-
-    axiosInstance
-      .post("/api/polls", postData)
-      .then((response) => {
-        if (response.status === 201) {
-          closeCreatePollDialog();
-          toast.success("Poll created Successfully");
-          socketRef.current.emit("newPollCreated", postData);
-        } else {
-          console.error(
-            "Failed to create poll:",
-            response.status,
-            response.statusText
-          );
-        }
-      })
-      .catch((error) => {
-        console.error("Error creating poll:", error);
-      });
+  const postData = {
+    question: pollQuestion,
+    options: pollOptions,
+    visibility: visibility,
+    duration: parseInt(duration),
+    durationUnit: durationUnit,
+    isActive: true,
+    createdBy: {
+      userId: currentUser._id,
+      username: currentUser.fullname,
+    },
   };
+
+  axiosInstance
+    .post("/api/polls", postData)
+    .then((response) => {
+      if (response.status === 201) {
+        closeCreatePollDialog();
+        toast.success("Poll created Successfully");
+        
+        // Create notifications for all users EXCEPT the current user
+        axiosInstance
+          .post("/notifications", {
+            content: `${currentUser.fullname} created a new poll: ${pollQuestion}`,
+            pollId: response.data._id,
+            creatorId: currentUser._id // Pass creator ID to exclude them
+          })
+          .then(() => {
+            console.log("Notifications created successfully");
+          })
+          .catch((error) => {
+            console.error("Error creating notifications:", error);
+          });
+        
+        socketRef.current.emit("newPollCreated", postData);
+      }
+    })
+    .catch((error) => {
+      console.error("Error creating poll:", error);
+    });
+};
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -206,11 +245,14 @@ const Navbar = () => {
     navigate("/mypolls");
   };
 
+  // Sort notifications: unread first, then by creation date
   const sortedNotifications = [...notifications].sort((a, b) => {
-    return a.isRead === b.isRead ? 0 : a.isRead ? 1 : -1;
+    if (a.isRead !== b.isRead) {
+      return a.isRead ? 1 : -1;
+    }
+    return new Date(b.createdAt) - new Date(a.createdAt);
   });
 
-  const unreadNotifications = sortedNotifications.filter((n) => !n.isRead);
 
   return (
     <div className="navbar">
@@ -231,22 +273,50 @@ const Navbar = () => {
         <div className="notification-wrapper" ref={notificationRef}>
           <button className="notification-button" onClick={toggleNotifications}>
             <i className="fas fa-bell fa-shake"></i>
+            {unreadCount > 0 && (
+              <span className="notification-badge">{unreadCount}</span>
+            )}
           </button>
           {showNotifications && (
             <div className="notification-dropdown">
-              {unreadNotifications.map((notification, index) => (
-                <div key={index} className="notification">
-                  {notification.content}
-                  <span
-                    className="mark-as-read"
-                    onClick={() => markAsRead(notification)}
+              <div className="notification-header">
+                <h4>Notifications</h4>
+                {unreadCount > 0 && (
+                  <button 
+                    className="mark-all-read-btn"
+                    onClick={markAllAsRead}
                   >
-                    <i className="fa-solid fa-check-double"></i>
-                    <span className="mark-as-read-tooltip">Mark as Read</span>
-                  </span>
-                  {index < unreadNotifications.length - 1 && <hr />}
+                    Mark all as read
+                  </button>
+                )}
+              </div>
+              
+              {sortedNotifications.length === 0 ? (
+                <div className="no-notifications">
+                  No notifications yet
                 </div>
-              ))}
+              ) : (
+                sortedNotifications.map((notification, index) => (
+                  <div 
+                    key={notification._id} 
+                    className={`notification ${notification.isRead ? 'read' : 'unread'}`}
+                  >
+                    <div className="notification-content">
+                      {notification.content}
+                    </div>
+                    {!notification.isRead && (
+                      <span
+                        className="mark-as-read"
+                        onClick={() => markAsRead(notification)}
+                      >
+                        <i className="fa-solid fa-check-double"></i>
+                        <span className="mark-as-read-tooltip">Mark as Read</span>
+                      </span>
+                    )}
+                    {index < sortedNotifications.length - 1 && <hr />}
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
