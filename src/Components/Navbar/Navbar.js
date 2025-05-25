@@ -228,72 +228,76 @@ const Navbar = () => {
     setShowCreatePollDialog(false);
   };
 
-  const createPoll = () => {
-    const currentUser = JSON.parse(localStorage.getItem("user"));
+const createPoll = () => {
+  const currentUser = JSON.parse(localStorage.getItem("user"));
 
-    // Validation
-    if (!pollQuestion.trim()) {
-      toast.error("Please enter a poll question");
-      return;
-    }
+  // Validation
+  if (!pollQuestion.trim()) {
+    toast.error("Please enter a poll question");
+    return;
+  }
 
-    if (pollOptions.some(option => !option.trim())) {
-      toast.error("Please fill in all poll options");
-      return;
-    }
+  if (pollOptions.some(option => !option.trim())) {
+    toast.error("Please fill in all poll options");
+    return;
+  }
 
-    if (!duration || duration <= 0) {
-      toast.error("Please enter a valid duration");
-      return;
-    }
+  if (!duration || duration <= 0) {
+    toast.error("Please enter a valid duration");
+    return;
+  }
 
-    if (visibility === "private" && selectedUsers.length === 0) {
-      toast.error("Please select at least one user for private poll");
-      return;
-    }
+  if (visibility === "private" && selectedUsers.length === 0) {
+    toast.error("Please select at least one user for private poll");
+    return;
+  }
 
-    const postData = {
-      question: pollQuestion,
-      options: pollOptions,
-      visibility: visibility,
-      duration: parseInt(duration),
-      durationUnit: durationUnit,
-      isActive: true,
-      createdBy: {
-        userId: currentUser._id,
-        username: currentUser.fullname,
-      },
-      allowedUsers: visibility === "private" ? selectedUsers.map(user => user._id) : [],
-    };
+  const postData = {
+    question: pollQuestion,
+    options: pollOptions,
+    visibility: visibility,
+    duration: parseInt(duration),
+    durationUnit: durationUnit,
+    isActive: true,
+    createdBy: {
+      userId: currentUser._id,
+      username: currentUser.fullname,
+    },
+    allowedUsers: visibility === "private" ? selectedUsers.map(user => user._id) : [],
+  };
 
-    axiosInstance
-      .post("/api/polls", postData)
-      .then((response) => {
-        if (response.status === 201) {
-          closeCreatePollDialog();
-          toast.success("Poll created Successfully");
-          
+  axiosInstance
+    .post("/api/polls", postData)
+    .then((response) => {
+      if (response.status === 201) {
+        closeCreatePollDialog();
+        toast.success("Poll created Successfully");
+
+        // Only send notification for public polls
+        if (visibility === "public") {
           axiosInstance
             .post("/notifications", {
               content: `${currentUser.fullname} created a new poll: ${pollQuestion}`,
-              pollId: response.data._id,
-              creatorId: currentUser._id 
+              poll: response.data.poll._id,  // Use 'poll' key if your backend expects it
+              userId: currentUser._id // or omit if backend handles recipient
             })
             .then(() => {
-              console.log("Notifications created successfully");
+              console.log("Notification created successfully");
             })
             .catch((error) => {
-              console.error("Error creating notifications:", error);
+              console.error("Error creating notification:", error);
             });
-          
-          socketRef.current.emit("newPollCreated", postData);
         }
-      })
-      .catch((error) => {
-        console.error("Error creating poll:", error);
-        toast.error("Failed to create poll");
-      });
-  };
+
+        socketRef.current.emit("newPollCreated", response.data.poll); // Emit the created poll from response
+      }
+    })
+    .catch((error) => {
+      console.error("Error creating poll:", error);
+      toast.error("Failed to create poll");
+    });
+};
+
 
   const logout = () => {
     localStorage.removeItem("user");
