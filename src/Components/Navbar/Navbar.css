@@ -704,12 +704,12 @@ input[type="radio"] {
     margin: 0;
   }
   
-  .notification-dropdown {
+  /* .notification-dropdown {
     right: 0;
     min-width: 280px;
     width: 80vw;
     max-width: 350px;
-  }
+  } */
   
   .profile-dropdown {
     right: 0;
@@ -737,10 +737,10 @@ input[type="radio"] {
   }
   
   .notification-dropdown {
-    width: 90vw;
+    width: auto;
     max-width: none;
-    right: -20px;
-    left: 50%;
+    /* right: -20px; */
+    left: 0%;
     transform: translateX(-50%);
   }
   

@@ -49,8 +49,14 @@ const Navbar = () => {
         fetchNotifications();
         fetchUnreadCount();
         
+ // Only show toast for public polls or private polls where current user is allowed
+      if (newPoll.visibility === 'public') {
         toast.info(`${newPoll.createdBy.username} created a new poll: ${newPoll.question}`);
-      }
+      } else if (newPoll.visibility === 'private' && 
+                 newPoll.allowedUsers && 
+                 newPoll.allowedUsers.includes(currentUser._id)) {
+        toast.info(`${newPoll.createdBy.username} invited you to a private poll: ${newPoll.question}`);
+      }      }
     });
 
     const handleClickOutside = (event) => {
@@ -278,8 +284,8 @@ const createPoll = () => {
           axiosInstance
             .post("/notifications", {
               content: `${currentUser.fullname} created a new poll: ${pollQuestion}`,
-              poll: response.data.poll._id,  // Use 'poll' key if your backend expects it
-              userId: currentUser._id // or omit if backend handles recipient
+              pollId: response.data.poll._id,  // Use pollId to match backend expectation
+              creatorId: currentUser._id // Pass creatorId to exclude from notifications
             })
             .then(() => {
               console.log("Notification created successfully");
@@ -289,7 +295,7 @@ const createPoll = () => {
             });
         }
 
-        socketRef.current.emit("newPollCreated", response.data.poll); // Emit the created poll from response
+        socketRef.current.emit("newPollCreated", response.data.poll);
       }
     })
     .catch((error) => {
