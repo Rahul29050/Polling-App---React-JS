@@ -3,12 +3,14 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import OTPVerification from '../Auth/OTPVerification';
+import ForgotPassword from '../Auth/ForgotPassword';
 import './LoginPage.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 const LoginPage = () => {
     const [userData, setUserData] = useState({ email: '', password: '' });
     const [showOTP, setShowOTP] = useState(false);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [tempToken, setTempToken] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [loading, setLoading] = useState(false);
@@ -53,11 +55,23 @@ const LoginPage = () => {
 
     const handleBackToLogin = () => {
         setShowOTP(false);
+        setShowForgotPassword(false);
         setTempToken('');
         setUserEmail('');
         setUserData({ email: '', password: '' });
     };
 
+    const handleForgotPasswordClick = () => {
+        setShowForgotPassword(true);
+    };
+
+    const handleForgotPasswordSuccess = () => {
+        // After successful password reset, go back to login
+        setShowForgotPassword(false);
+        toast.success('Password reset successfully! Please login with your new password.');
+    };
+
+    // Show OTP verification screen
     if (showOTP) {
         return (
             <OTPVerification
@@ -69,6 +83,17 @@ const LoginPage = () => {
         );
     }
 
+    // Show forgot password screen
+    if (showForgotPassword) {
+        return (
+            <ForgotPassword
+                onSuccess={handleForgotPasswordSuccess}
+                onBack={handleBackToLogin}
+            />
+        );
+    }
+
+    // Main login form
     return (
         <div className="login-container">
             <div className="login-box">
@@ -106,6 +131,18 @@ const LoginPage = () => {
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
+                
+                {/* Forgot Password Link */}
+                <div className="forgot-password-link">
+                    <button 
+                        type="button" 
+                        onClick={handleForgotPasswordClick}
+                        className="forgot-password-button"
+                    >
+                        Forgot Password?
+                    </button>
+                </div>
+
                 <p className="signup-link">
                     Don't have an account? 
                     <Link to="/signup" className="signup-button"> Sign up now</Link>

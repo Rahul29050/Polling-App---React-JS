@@ -1,107 +1,124 @@
+/* OTPVerification.css */
 
-/* Components/Auth/OTPVerification.css */
 .otp-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .otp-box {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
+  background: #ffffff;
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
 }
 
 .otp-heading {
-    color: #333;
-    margin-bottom: 1rem;
-    font-size: 1.8rem;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 10px;
 }
 
 .otp-description {
-    color: #666;
-    margin-bottom: 2rem;
-    line-height: 1.5;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
 }
 
 .otp-input {
-    width: 100%;
-    padding: 15px;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-    font-size: 1.2rem;
-    text-align: center;
-    letter-spacing: 0.5rem;
-    margin-bottom: 1rem;
-    transition: border-color 0.3s ease;
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-sizing: border-box;
+  transition: border 0.3s ease;
 }
 
 .otp-input:focus {
-    outline: none;
-    border-color: #007bff;
+  border-color: #3498db;
+  outline: none;
 }
 
 .verify-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-bottom: 1rem;
-}
-
-.verify-button:hover:not(:disabled) {
-    background-color: #0056b3;
+  width: 100%;
+  padding: 12px;
+  background-color: #3498db;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .verify-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  background-color: #87c2ed;
+  cursor: not-allowed;
+}
+
+.verify-button:hover:not(:disabled) {
+  background-color: #2980b9;
 }
 
 .resend-section {
-    margin: 1rem 0;
+  margin-top: 20px;
 }
 
 .countdown-text {
-    color: #666;
-    font-size: 0.9rem;
+  color: #888;
+  font-size: 14px;
 }
 
 .resend-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    text-decoration: underline;
-    cursor: pointer;
-    font-size: 0.9rem;
+  background: none;
+  border: none;
+  color: #3498db;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.2s ease-in-out;
 }
 
 .resend-button:hover {
-    color: #0056b3;
+  color: #1d6fa5;
 }
 
-.back-button {
-    background: none;
-    border: 1px solid #ddd;
-    color: #666;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin-top: 1rem;
+.back-button2 {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #3498db;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 10px;
+  transition: color 0.2s ease-in-out;
+  margin-right: 343px;
 }
 
-.back-button:hover {
-    background-color: #f8f9fa;
+.back-button2:hover {
+  color: #002e5b;
 }

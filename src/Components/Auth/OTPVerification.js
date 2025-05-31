@@ -67,6 +67,9 @@ const OTPVerification = ({ tempToken, email, onSuccess, onBack }) => {
     return (
         <div className="otp-container">
             <div className="otp-box">
+                <button onClick={onBack} className="back-button2">
+                        ← Back
+                </button>
                 <h2 className="otp-heading">Verify Your Email</h2>
                 <p className="otp-description">
                     We've sent a 6-digit verification code to
@@ -112,12 +115,7 @@ const OTPVerification = ({ tempToken, email, onSuccess, onBack }) => {
                     )}
                 </div>
                 
-                <button 
-                    onClick={onBack} 
-                    className="back-button"
-                >
-                    Back to Login
-                </button>
+
             </div>
         </div>
     );

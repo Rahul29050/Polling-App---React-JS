@@ -202,7 +202,7 @@ const PollDetails = () => {
         <p>Loading...</p>
       )}
 
-      <button onClick={() => navigate("/dashboard")} className="back-button">
+      <button onClick={() => navigate("/dashboard")} className="back-button3">
         Back to Dashboard
       </button>
     </div>
